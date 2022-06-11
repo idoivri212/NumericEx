@@ -44,13 +44,13 @@ def compare_euler(dt):
 
 
 def explicit_euler(dt, t_seg, ay, az):
-    r, v = Vector(t_seg+1), Vector(t_seg+1)
+    r, v = Vector(t_seg), Vector(t_seg)
     # Initial Conditions
     v.y[0] = 0
     v.z[0] = 3 * E / B
     r.y[0] = 0
     r.z[0] = 0
-    for i in range(1, t_seg+1):
+    for i in range(1, t_seg):
         r.y[i] = r.y[i - 1] + dt * v.y[i - 1]
         r.z[i] = r.z[i - 1] + dt * v.z[i - 1]
         v.z[i] = v.z[i - 1] + dt * az(v.y[i - 1])
@@ -60,13 +60,13 @@ def explicit_euler(dt, t_seg, ay, az):
 
 
 def midpoint(dt, t_seg, ay, az):
-    r, v = Vector(t_seg+1), Vector(t_seg+1)
+    r, v = Vector(t_seg), Vector(t_seg)
     # Initial Conditions
     v.y[0] = 0
     v.z[0] = 3 * E / B
     r.y[0] = 0
     r.z[0] = 0
-    for i in range(1, t_seg+1):
+    for i in range(1, t_seg):
         k1vy = ay(v.z[i - 1]) * dt
         k1vz = az(v.y[i - 1]) * dt
         k2vz = az(v.y[i - 1] + 0.5 * k1vy) * dt
@@ -86,33 +86,33 @@ def midpoint(dt, t_seg, ay, az):
 
 
 def runge_kutta(dt, t_seg, ay, az):
-    r, v = Vector(t_seg+1), Vector(t_seg+1)
+    r, v = Vector(t_seg), Vector(t_seg)
     # Initial Conditions
     v.y[0] = 0
     v.z[0] = 3 * E / B
     r.y[0] = 0
     r.z[0] = 0
-    for i in range(1, t_seg+1):
+    for i in range(1, t_seg):
         k1vz = dt * az(v.y[i - 1])
         k1vy = dt * ay(v.z[i - 1])
-
-        k2vz = dt * az(v.y[i - 1] + 0.5 * k1vy)
-        k2vy = dt * ay(v.z[i - 1] + 0.5 * k1vz)
-
-        k3vz = dt * az(v.y[i - 1] + 0.5 * k2vy)
-        k3vy = dt * ay(v.z[i - 1] + 0.5 * k2vz)
-
-        k4vz = dt * az(v.y[i - 1] + k3vy)
-        k4vy = dt * ay(v.z[i - 1] + k3vz)
 
         k1rz = dt * (v.z[i - 1])
         k1ry = dt * (v.y[i - 1])
 
-        k2rz = dt * (v.z[i - 1] + 0.5 * k1vz)
+        k2vy = dt * ay(v.z[i - 1] + 0.5 * k1vz)
+        k2vz = dt * az(v.y[i - 1] + 0.5 * k1vy)
+
         k2ry = dt * (v.y[i - 1] + 0.5 * k1vy)
+        k2rz = dt * (v.z[i - 1] + 0.5 * k1vz)
+
+        k3vz = dt * az(v.y[i - 1] + 0.5 * k2vy)
+        k3vy = dt * ay(v.z[i - 1] + 0.5 * k2vz)
 
         k3rz = dt * (v.z[i - 1] + 0.5 * k2vz)
         k3ry = dt * (v.y[i - 1] + 0.5 * k2vy)
+
+        k4vz = dt * az(v.y[i - 1] + k3vy)
+        k4vy = dt * ay(v.z[i - 1] + k3vz)
 
         k4rz = dt * (v.z[i - 1] + k3vz)
         k4ry = dt * (v.y[i - 1] + k3vy)
@@ -213,4 +213,4 @@ def graph_errors(start, stop, n_vals):
 
 if __name__ == '__main__':
     # advance(10**-5, True)
-    graph_errors(10**-4, 10**-1, 10)
+    graph_errors(10**-5, 10**-2, 100)
