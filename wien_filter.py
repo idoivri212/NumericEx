@@ -122,7 +122,8 @@ def question_6(n_particles):
             fail_r += [vectors[0]]
             fail_v += [vectors[1]]
 
-    plot_paths([suc_r[0]], [fail_r[round(len(fail_r)/2)]])
+    # plot_paths([suc_r[0]], [fail_r[round(len(fail_r)/2)]])
+    plot_paths(suc_r, fail_r)
 
 
 def question_7(n_particles):
@@ -140,6 +141,7 @@ def question_7(n_particles):
                 v_pts.append(dv / v0)
     plot_points(v_pts, y_pts)
 
+
 def question_8(n_particles):
     velocities = []
     for i in range(n_particles):
@@ -156,7 +158,7 @@ def question_8(n_particles):
 
 
 if __name__ == '__main__':
-    # question_6(100)
+    question_6(1000)
     # question_7(100)
-    question_8(10**5)
+    # question_8(10**5)
 
