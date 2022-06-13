@@ -2,7 +2,7 @@ from numeric_methods import Vector
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-
+from tqdm import tqdm
 # Constants
 B = 0.5
 R = 0.003
@@ -11,7 +11,7 @@ q = 1.6 * 10**(-19)
 m = 1.672 * 10**(-27)
 Mev = 1.6*(10**(-13))
 E0 = 5 * Mev
-dt = 10**(-8)
+dt = 10**(-10)
 dE = 0.25 * Mev
 dv = math.sqrt(2*dE/m)
 E = math.sqrt((2*E0)/m)*B
@@ -22,13 +22,18 @@ az = lambda vy: A * (vy * B)
 
 
 def plot_histog(x, *perc):
+    try:
+        with open("data.csv", "w") as f:
+            f.write(x)
+    except:
+        pass
     fig, ax = plt.subplots()
-    ax.set_xlabel("number of particles")
-    ax.set_ylabel("vt(m/s)")
+    ax.set_xlabel("vt(m/s)")
+    ax.set_ylabel("number of particles")
     plt.grid()
     fig.suptitle(f"Velocity distribution for particles with evenly distributed E0, Y0")
     plt.title(f"{perc[0]}% of the particles in the beam passes the filter")
-    plt.hist(x)
+    plt.hist(x, bins=100)
     plt.show()
 
 
@@ -79,21 +84,27 @@ def one_particle(E0, Y0):
 
         k1vz = dt * az(v.y[i - 1])
         k1vy = dt * ay(v.z[i - 1])
-        k2vz = dt * az(v.y[i - 1] + 0.5 * k1vy)
-        k2vy = dt * ay(v.z[i - 1] + 0.5 * k1vz)
-        k3vz = dt * az(v.y[i - 1] + 0.5 * k2vy)
-        k3vy = dt * ay(v.z[i - 1] + 0.5 * k2vz)
-        k4vz = dt * az(v.y[i - 1] + k3vy)
-        k4vy = dt * ay(v.z[i - 1] + k3vz)
 
         k1rz = dt * (v.z[i - 1])
         k1ry = dt * (v.y[i - 1])
-        k2rz = dt * (v.z[i - 1] + 0.5 * k1ry)
-        k2ry = dt * (v.y[i - 1] + 0.5 * k1rz)
-        k3rz = dt * (v.z[i - 1] + 0.5 * k2ry)
-        k3ry = dt * (v.y[i - 1] + 0.5 * k2rz)
-        k4rz = dt * (v.z[i - 1] + k3ry)
-        k4ry = dt * (v.y[i - 1] + k3rz)
+
+        k2vy = dt * ay(v.z[i - 1] + 0.5 * k1vz)
+        k2vz = dt * az(v.y[i - 1] + 0.5 * k1vy)
+
+        k2ry = dt * (v.y[i - 1] + 0.5 * k1vy)
+        k2rz = dt * (v.z[i - 1] + 0.5 * k1vz)
+
+        k3vz = dt * az(v.y[i - 1] + 0.5 * k2vy)
+        k3vy = dt * ay(v.z[i - 1] + 0.5 * k2vz)
+
+        k3rz = dt * (v.z[i - 1] + 0.5 * k2vz)
+        k3ry = dt * (v.y[i - 1] + 0.5 * k2vy)
+
+        k4vz = dt * az(v.y[i - 1] + k3vy)
+        k4vy = dt * ay(v.z[i - 1] + k3vz)
+
+        k4rz = dt * (v.z[i - 1] + k3vz)
+        k4ry = dt * (v.y[i - 1] + k3vy)
 
         r.z = np.append(r.z, [r.z[i - 1] + 1 / 6 * (k1rz + 2 * k2rz + 2 * k3rz + k4rz)])
         r.y = np.append(r.y, r.y[i - 1] + 1 / 6 * (k1ry + 2 * k2ry + 2 * k3ry + k4ry))
@@ -122,8 +133,8 @@ def question_6(n_particles):
             fail_r += [vectors[0]]
             fail_v += [vectors[1]]
 
-    # plot_paths([suc_r[0]], [fail_r[round(len(fail_r)/2)]])
-    plot_paths(suc_r, fail_r)
+    plot_paths([suc_r[0]], [fail_r[round(len(fail_r)/2)]])
+    # plot_paths(suc_r, fail_r)
 
 
 def question_7(n_particles):
@@ -142,9 +153,9 @@ def question_7(n_particles):
     plot_points(v_pts, y_pts)
 
 
-def question_8(n_particles):
+def question_8(n_particles, show=True):
     velocities = []
-    for i in range(n_particles):
+    for i in tqdm(range(n_particles)):
         e0 = np.random.uniform(E0 - dE, E0 + dE)
         y0 = np.random.uniform(-R, R)
         vectors, rez = one_particle(e0, y0)
@@ -154,11 +165,20 @@ def question_8(n_particles):
             velocities.append(math.sqrt((vzt**2)+(vyt**2)))
 
     perc = round((len(velocities)/n_particles), 5) * 100
-    plot_histog(velocities, perc)
+    if show:
+        plot_histog(velocities, perc)
+    return perc
+
+
+def standard_dev(n_tests, n_particles):
+    perc = []
+    for i in tqdm(range(n_tests)):
+        perc.append(question_8(n_particles, False))
+
 
 
 if __name__ == '__main__':
-    question_6(1000)
+    # question_6(10)
     # question_7(100)
-    # question_8(10**5)
+    question_8(10**5)
 
